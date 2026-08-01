@@ -3,7 +3,7 @@ export function HeroPoints() {
     <ul>
       <li>Fast screening</li>
       <li>Fair scoring</li>
-      <li>Admin‑focused hiring</li>
+      <li>Admin-focused hiring</li>
     </ul>
   );
 }
