@@ -1,2 +1,2 @@
 # Adminterview
-Multi-page Next.js app with candidate, employer, and dashboard routes.
+Multi-page Next.js  app with candidate, employer, and dashboard routes.
