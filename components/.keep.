@@ -1,0 +1,6 @@
+styles/.keep
+app/layout.tsx
+app/page.tsx
+app/candidate/page.tsx
+app/dashboard/page.tsx
+app/employers/page.tsx
