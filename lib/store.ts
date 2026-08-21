@@ -45,9 +45,11 @@ const mem = {
   jobs: [] as Job[],
   apps: [] as Application[],
   wallets: {} as Record<string, number>,
+  trials: {} as Record<string, string>,
 };
 
 export const MAX_TOKENS = 10; // never expire, up to $20 at $2 each
+export const TRIAL_DAYS = 7; // free practice trial length
 function uid() {
   return "id-" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -248,6 +250,39 @@ export async function addTokens(email: string, n: number): Promise<number> {
     mem.wallets[email] = next;
   }
   return next;
+}
+
+// ---------------- FREE TRIAL ----------------
+export type TrialStatus = { started: boolean; active: boolean; daysLeft: number };
+
+export async function getTrial(email: string): Promise<TrialStatus> {
+  if (!email) return { started: false, active: false, daysLeft: TRIAL_DAYS };
+  let startedAt: string | null = null;
+  if (sb) {
+    const { data } = await sb.from("practice_wallets").select("trial_started_at").eq("email", email).single();
+    startedAt = (data as any)?.trial_started_at ?? null;
+  } else {
+    startedAt = mem.trials[email] ?? null;
+  }
+  // Not started yet -> eligible for the full free week.
+  if (!startedAt) return { started: false, active: true, daysLeft: TRIAL_DAYS };
+  const end = new Date(startedAt).getTime() + TRIAL_DAYS * 86400000;
+  const remaining = end - Date.now();
+  return { started: true, active: remaining > 0, daysLeft: Math.max(0, Math.ceil(remaining / 86400000)) };
+}
+
+// Start the trial clock on first free practice (no-op if already started).
+export async function startTrial(email: string): Promise<TrialStatus> {
+  if (!email) return { started: false, active: false, daysLeft: 0 };
+  const current = await getTrial(email);
+  if (current.started) return current;
+  const nowIso = new Date().toISOString();
+  if (sb) {
+    await sb.from("practice_wallets").upsert({ email, trial_started_at: nowIso });
+  } else {
+    mem.trials[email] = nowIso;
+  }
+  return { started: true, active: true, daysLeft: TRIAL_DAYS };
 }
 
 // Spend one token. Returns the new balance, or -1 if none available.
