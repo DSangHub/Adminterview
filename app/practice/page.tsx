@@ -8,6 +8,7 @@ export default function Practice() {
   const role = "Office Administrator";
   const [email, setEmail] = useState("");
   const [tokens, setTokens] = useState(0);
+  const [trial, setTrial] = useState<{ started: boolean; active: boolean; daysLeft: number } | null>(null);
   const [started, setStarted] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -15,7 +16,6 @@ export default function Practice() {
   const [canFinish, setCanFinish] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [note, setNote] = useState("");
-  const paidRef = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,11 +30,25 @@ export default function Practice() {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, result]);
 
-  async function refreshTokens(e: string) {
-    if (!e) { setTokens(0); return; }
+  async function refresh(e: string) {
+    if (!e) { setTokens(0); setTrial(null); return; }
     const r = await fetch(`/api/practice/wallet?email=${encodeURIComponent(e)}`);
     const d = await r.json();
     setTokens(d.tokens || 0);
+    setTrial(d.trial || null);
+  }
+
+  // Free week: start the trial clock (if needed) and begin.
+  async function startFree() {
+    if (!email) { setNote("Enter your email to start your free week."); return; }
+    setLoading(true);
+    try {
+      await fetch("/api/practice/wallet", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, action: "startTrial" }),
+      });
+      begin();
+    } catch { setLoading(false); }
   }
 
   async function buy(plan: string) {
@@ -47,9 +61,9 @@ export default function Practice() {
         body: JSON.stringify({ plan, email }),
       });
       const d = await r.json();
-      if (d.url) { window.location.href = d.url; return; }        // real Stripe
-      if (plan === "single") { begin(); return; }                 // demo single -> free
-      setTokens(d.balance ?? tokens);                             // demo pack -> credited
+      if (d.url) { window.location.href = d.url; return; }
+      if (plan === "single") { begin(); return; }
+      setTokens(d.balance ?? tokens);
       setNote(`Added ${d.granted} tokens. Balance: ${d.balance}.`);
     } finally { setLoading(false); }
   }
@@ -63,14 +77,13 @@ export default function Practice() {
         body: JSON.stringify({ email }),
       });
       const d = await r.json();
-      if (!r.ok) { setNote("No tokens left — buy a session or a pack."); setLoading(false); return; }
+      if (!r.ok) { setNote("No tokens left — start your free week or buy a pack."); setLoading(false); return; }
       setTokens(d.tokens);
       begin();
-    } finally { /* begin handles loading */ }
+    } catch { setLoading(false); }
   }
 
   async function begin() {
-    paidRef.current = true;
     setStarted(true);
     setLoading(true);
     const r = await fetch("/api/practice", {
@@ -100,7 +113,7 @@ export default function Practice() {
     setLoading(true);
     const r = await fetch("/api/practice", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, messages, action: "finish", paid: paidRef.current, email }),
+      body: JSON.stringify({ role, messages, action: "finish", email }),
     });
     setResult(await r.json());
     setLoading(false);
@@ -116,7 +129,7 @@ export default function Practice() {
     </div>
   );
 
-  const input2: React.CSSProperties = {
+  const inputStyle: React.CSSProperties = {
     width: "100%", padding: "11px 13px", borderRadius: 10, border: "1px solid var(--line)",
     fontSize: 15, marginTop: 6, fontFamily: "inherit",
   };
@@ -125,52 +138,78 @@ export default function Practice() {
     display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
   };
 
+  const trialActive = trial?.active;
+
   return (
     <Shell>
       <span className="eyebrow">Candidate tools</span>
       <h1 style={{ fontSize: 32, fontWeight: 800, margin: "10px 0 4px" }}>Practice interview with AI</h1>
       <p style={{ color: "var(--slate)", maxWidth: 620 }}>
         Rehearse real {role} scenarios with an AI coach that gives feedback after every answer,
-        then a readiness score. Practice until you're perfect.
+        then a readiness score. <b>Your first week is free.</b>
       </p>
 
       {!started && !result && (
         <div className="card" style={{ maxWidth: 620, marginTop: 22 }}>
           <label style={{ fontWeight: 600, fontSize: 14 }}>Your email</label>
           <input
-            style={input2} type="email" placeholder="you@example.com" value={email}
-            onChange={(e) => setEmail(e.target.value)} onBlur={(e) => refreshTokens(e.target.value)}
+            style={inputStyle} type="email" placeholder="you@example.com" value={email}
+            onChange={(e) => setEmail(e.target.value)} onBlur={(e) => refresh(e.target.value)}
           />
           <p style={{ fontSize: 13, color: "var(--mut)", marginTop: 6 }}>
-            Used to hold your token balance. Tokens never expire.
+            Starts your free week and holds any token balance.
           </p>
 
-          {tokens > 0 && (
+          {/* FREE TRIAL */}
+          {trialActive && (
             <div style={{ ...opt, marginTop: 16, borderColor: "#bbf7d0", background: "rgba(12,163,12,.06)" }}>
-              <div><b>{tokens}</b> practice token{tokens > 1 ? "s" : ""} available</div>
-              <button className="btn btn-primary" onClick={useToken} disabled={loading}>Use 1 token & start →</button>
+              <div>
+                <b>🎁 Free week of practice</b>
+                <div style={{ fontSize: 13, color: "var(--slate)" }}>
+                  {trial?.started ? `${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left — unlimited practice`
+                                  : "7 days of unlimited practice — no card needed"}
+                </div>
+              </div>
+              <button className="btn btn-primary" onClick={startFree} disabled={loading}>
+                {loading ? "Starting…" : "Practice free →"}
+              </button>
             </div>
           )}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
-            <div style={opt}>
-              <div><b>Single session</b><div style={{ fontSize: 13, color: "var(--slate)" }}>One mock interview + feedback</div></div>
-              <button className="btn btn-ghost" onClick={() => buy("single")} disabled={loading}>$2 →</button>
-            </div>
-            <div style={opt}>
-              <div><b>5 time tokens</b><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · 5 sessions</div></div>
-              <button className="btn btn-ghost" onClick={() => buy("pack10")} disabled={loading}>$10 →</button>
-            </div>
-            <div style={{ ...opt, borderColor: "#c9defb", background: "rgba(42,120,214,.05)" }}>
-              <div><b>10 time tokens</b> <span style={{ fontSize: 12, color: "var(--blue)", fontWeight: 700 }}>best value</span><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · max balance</div></div>
-              <button className="btn btn-primary" onClick={() => buy("pack20")} disabled={loading}>$20 →</button>
-            </div>
-          </div>
+          {/* AFTER TRIAL: tokens + pay */}
+          {trial && !trialActive && (
+            <>
+              <p style={{ marginTop: 16, fontWeight: 600, color: "#b45309", fontSize: 14 }}>
+                Your free week has ended — keep practicing:
+              </p>
+              {tokens > 0 && (
+                <div style={{ ...opt, marginTop: 10, borderColor: "#bbf7d0", background: "rgba(12,163,12,.06)" }}>
+                  <div><b>{tokens}</b> practice token{tokens > 1 ? "s" : ""} available</div>
+                  <button className="btn btn-primary" onClick={useToken} disabled={loading}>Use 1 token & start →</button>
+                </div>
+              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+                <div style={opt}>
+                  <div><b>Single session</b><div style={{ fontSize: 13, color: "var(--slate)" }}>One mock interview + feedback</div></div>
+                  <button className="btn btn-ghost" onClick={() => buy("single")} disabled={loading}>$2 →</button>
+                </div>
+                <div style={opt}>
+                  <div><b>5 time tokens</b><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · 5 sessions</div></div>
+                  <button className="btn btn-ghost" onClick={() => buy("pack10")} disabled={loading}>$10 →</button>
+                </div>
+                <div style={{ ...opt, borderColor: "#c9defb", background: "rgba(42,120,214,.05)" }}>
+                  <div><b>10 time tokens</b> <span style={{ fontSize: 12, color: "var(--blue)", fontWeight: 700 }}>best value</span><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · max balance</div></div>
+                  <button className="btn btn-primary" onClick={() => buy("pack20")} disabled={loading}>$20 →</button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {!trial && (
+            <p style={{ marginTop: 14, color: "var(--mut)", fontSize: 13 }}>Enter your email above to begin.</p>
+          )}
 
           {note && <p style={{ color: "#065f46", marginTop: 12, fontSize: 14, fontWeight: 600 }}>{note}</p>}
-          <p style={{ color: "var(--mut)", fontSize: 12.5, marginTop: 12 }}>
-            Payments run through Stripe. Until Stripe keys are added, purchases apply instantly so you can test the flow.
-          </p>
         </div>
       )}
 
