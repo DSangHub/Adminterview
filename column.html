@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Staying Relevant in the Age of AI — Adminterview Column</title>
+<style>
+  :root{
+    --blue:#2a78d6; --indigo:#4a3aa7; --cyan:#22d3ee; --aqua:#1baf7a; --violet:#7c3aed;
+    --ink:#0f172a; --slate:#475569; --mut:#64748b; --line:#e6eaf2; --white:#fff; --bg:#f7f9fc;
+    --grad:linear-gradient(135deg,#4f46e5 0%,#2a78d6 48%,#22d3ee 100%);
+    --shadow:0 18px 40px -18px rgba(15,23,42,.35); --shadow-sm:0 6px 20px -10px rgba(15,23,42,.25);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--white);line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:820px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{line-height:1.2;letter-spacing:-.02em;margin:0}
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1140px;margin:0 auto;padding:0 24px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px}
+  .logo{width:30px;height:30px;border-radius:8px;background:var(--grad);display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+  .navlinks{display:flex;gap:26px;font-size:15px;font-weight:500;color:var(--slate)}
+  .navlinks a:hover{color:var(--ink)}
+  @media(max-width:760px){.navlinks{display:none}}
+
+  .hero{background:radial-gradient(900px 400px at 80% -20%,#25306a 0,transparent 60%),linear-gradient(160deg,#0b1224,#141d3f);color:#fff;padding:64px 0 56px}
+  .hero .eyebrow{color:#a5b4fc}
+  .hero h1{font-size:44px;font-weight:800;margin:14px 0 0;max-width:16ch}
+  .hero h1 .grad{background:linear-gradient(90deg,#a5b4fc,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{margin-top:18px;font-size:19px;color:#c3cbe0;max-width:60ch}
+  .byline{margin-top:22px;font-size:14px;color:#93a0c4}
+  @media(max-width:600px){.hero h1{font-size:32px}}
+
+  article{padding:52px 0 20px}
+  article .lead{font-size:20px;color:var(--ink)}
+  article h2{font-size:25px;font-weight:800;margin:38px 0 10px}
+  article p{margin:14px 0;color:#243244;font-size:17px}
+  article strong{color:var(--ink)}
+
+  .roles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0}
+  .role{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--bg)}
+  .role h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .role p{font-size:15px;margin:8px 0 0;color:var(--slate)}
+  .dot{width:10px;height:10px;border-radius:3px}
+  @media(max-width:600px){.roles{grid-template-columns:1fr}}
+
+  .faq{background:linear-gradient(180deg,#f7f9fc,#eef2fb);border-top:1px solid var(--line);padding:56px 0 66px;margin-top:40px}
+  .faq h2{font-size:30px;font-weight:800;text-align:center}
+  .faq .sub{text-align:center;color:var(--slate);margin:10px 0 30px;font-size:17px}
+  details{background:#fff;border:1px solid var(--line);border-radius:14px;margin:12px 0;box-shadow:var(--shadow-sm);overflow:hidden}
+  summary{cursor:pointer;list-style:none;padding:18px 22px;font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:rgba(42,120,214,.1);display:grid;place-items:center;transition:.2s;color:var(--blue)}
+  details[open] summary .chev{transform:rotate(45deg);background:var(--grad);color:#fff}
+  details .body{padding:0 22px 20px;color:#334155;font-size:16px;line-height:1.65}
+  details .body b{color:var(--ink)}
+
+  .cta{max-width:820px;margin:44px auto 70px;padding:0 24px}
+  .cta .box{background:var(--grad);border-radius:22px;padding:40px 34px;text-align:center;color:#fff;box-shadow:var(--shadow)}
+  .cta h2{font-size:26px;font-weight:800}
+  .cta p{margin:10px auto 0;max-width:48ch;color:#eef2ff}
+  .btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-weight:600;font-size:15px;padding:12px 22px;border-radius:11px;background:#fff;color:#0b1224}
+  footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="brand"><span class="logo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 5.2L20 8.6l-4 4 1 6-5-2.9L7 18.6l1-6-4-4 5.6-1.4L12 2z" fill="#fff"/></svg></span>Adminterview</div>
+    <div class="navlinks"><a href="#">Employers</a><a href="#">Candidates</a><a href="#">Practice</a><a href="#" style="color:var(--ink);font-weight:700">Column</a></div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Career Column</span>
+    <h1>How to stay <span class="grad">relevant</span> in the age of AI automation</h1>
+    <p>Automation is coming for the routine parts of office, counter, cashier, and merchandising work — not for the people who know how to grow around it. Here's how to become the worker AI makes more valuable, not less.</p>
+    <div class="byline">Adminterview · Career &amp; Skills · 6 min read</div>
+  </div>
+</section>
+
+<!-- ARTICLE -->
+<article>
+  <div class="wrap">
+    <p class="lead">AI doesn't replace whole people — it replaces <strong>tasks</strong>. The repetitive parts of your job (entering data, ringing up items, counting stock, answering the same question for the hundredth time) are the first to be automated. But the parts that need a human — judgment, care, and handling the unexpected — are becoming <strong>more</strong> valuable, not less. Your goal is simple: spend more of your time on the human parts, and learn to use the machines for the rest.</p>
+
+    <h2>1. Be the human AI can't replace</h2>
+    <p>AI is fast and tireless, but it's weak exactly where people are strong: reading a frustrated customer, making a judgment call with incomplete information, owning a mistake, calming a tense moment, building trust over time. A self-checkout can scan groceries — it can't reassure a stressed parent or catch that something's off. Lean hard into service, empathy, and the messy exceptions. That's your moat.</p>
+
+    <h2>2. Work <em>with</em> the tools, not against them</h2>
+    <p>The workers who thrive won't be the ones who avoid AI — they'll be the ones who pick it up first. Learn the systems your industry actually uses: the POS, the scheduling app, the inventory software, the AI assistant your manager just started testing. Be the person who says <strong>"I can set that up"</strong> or <strong>"I know a faster way."</strong> That reputation is worth more than any single skill.</p>
+
+    <h2>3. Make reliability your brand</h2>
+    <p>Automation handles the predictable. Managers still promote the people they can trust with judgment and responsibility. Show up, follow through, catch the errors before they ship, and take initiative without being asked. "Dependable and resourceful" is a career-proof reputation in any economy.</p>
+
+    <h2>4. Go "T‑shaped" — one deep skill, several useful ones</h2>
+    <p>A cashier who also knows merchandising and can train new hires is far harder to automate than one who only rings up items. Cross-train into the areas next to yours. The more of the workflow you can cover — and connect — the more essential you become.</p>
+
+    <h2>5. Keep learning in small steps</h2>
+    <p>You don't need a degree. Free short courses, the tool's own tutorials, and on-the-job practice compound fast. Pick <strong>one</strong> skill a quarter, give it a few weeks, and put it to use. Small, consistent learning beats waiting for the "right" big program.</p>
+
+    <h2>Quick wins for your role</h2>
+    <div class="roles">
+      <div class="role"><h3><span class="dot" style="background:var(--blue)"></span>Office &amp; admin</h3><p>Master the tools — spreadsheets, scheduling, AI writing assistants — and become the coordinator who keeps projects moving and people unblocked.</p></div>
+      <div class="role"><h3><span class="dot" style="background:var(--aqua)"></span>Counter &amp; front desk</h3><p>Let machines handle the simple asks. You own the complex, the emotional, and the judgment calls — and turn regulars into loyal ones.</p></div>
+      <div class="role"><h3><span class="dot" style="background:var(--violet)"></span>Cashiers</h3><p>Become the self-checkout host and the service face: speed, warmth, and calmly handling the odd cases a machine can't.</p></div>
+      <div class="role"><h3><span class="dot" style="background:var(--indigo)"></span>Merchandising</h3><p>Pair the data (what sells) with human taste (what looks great). Machines can't design a display that tells a story — you can.</p></div>
+    </div>
+
+    <p style="font-size:18px;color:var(--ink);border-left:3px solid var(--blue);padding-left:16px;margin-top:30px"><strong>The bottom line:</strong> you don't have to out-compute the machine. You have to do the things it can't — and use it to do them better. Start with one skill this month.</p>
+  </div>
+</article>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="wrap">
+    <h2>Candidate FAQs</h2>
+    <p class="sub">The five questions job seekers ask us most about AI and their careers.</p>
+
+    <details open>
+      <summary>Will AI take my job?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></summary>
+      <div class="body">Probably not the whole job — but it will change it. AI is best at the repetitive parts: data entry, scanning items, counting stock. Those shrink, while the human parts — service, judgment, handling problems — grow. The people most at risk are the ones who <b>only</b> do the routine parts. Shift your time toward the human work and keep learning the tools, and you become much harder to replace.</div>
+    </details>
+
+    <details>
+      <summary>What skills should I focus on to stay employable?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></summary>
+      <div class="body">Four that travel across every role: <b>comfort with tools and tech</b> (including AI assistants), <b>clear communication</b>, <b>problem-solving and judgment</b>, and <b>adaptability</b> — the willingness to learn the next new system. Then add one role-specific skill: inventory software, visual merchandising, bookkeeping basics, or scheduling tools. Breadth plus one depth is the winning combination.</div>
+    </details>
+
+    <details>
+      <summary>How do I show an employer I can work alongside AI?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></summary>
+      <div class="body">Get hands-on with the common tools in your field, then say so — on your resume (<b>"used [tool] to cut checkout time by X"</b>) and in interviews with one concrete example. Curiosity signals more than certificates: <b>"I taught myself the new POS system and trained two coworkers"</b> beats any buzzword. Employers want proof you'll adapt, not a perfect résumé.</div>
+    </details>
+
+    <details>
+      <summary>My role is very specific (cashier, merchandising) — how does it actually change?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></summary>
+      <div class="body"><b>Cashiers →</b> more self-checkout hosting, service, and handling the cases machines can't. <b>Merchandising →</b> data tells you what sells, but humans still design the displays and tell the story. <b>Counter help →</b> the simple asks get automated; the complex, emotional, and judgment calls stay with you. <b>Office →</b> less manual data-shuffling, more coordinating and problem-solving. In every case the routine shrinks and the human-judgment part grows — so grow into it.</div>
+    </details>
+
+    <details>
+      <summary>Do I need to go back to school or get certified?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></summary>
+      <div class="body">Usually not a full degree. Short, focused learning wins: free online courses, the tool's own tutorials, and on-the-job practice. Pick one skill, give it a few weeks, and use it right away. Employers care far more about <b>"can you do it, and will you keep learning?"</b> than about a diploma. Practicing a mock interview (like the ones here) counts too — it builds the exact judgment and communication that AI can't replace.</div>
+    </details>
+  </div>
+</section>
+
+<div class="cta">
+  <div class="box">
+    <h2>Put it into practice</h2>
+    <p>Sharpen the human skills that keep you relevant — run a free AI practice interview and get instant, honest feedback.</p>
+    <a class="btn" href="#">Start practicing →</a>
+  </div>
+</div>
+
+<footer>© 2026 Adminterview · Career &amp; Skills Column</footer>
+
+</body>
+</html>
