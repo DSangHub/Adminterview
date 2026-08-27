@@ -41,6 +41,7 @@ export default function Practice() {
   // Free week: start the trial clock (if needed) and begin.
   async function startFree() {
     if (!email) { setNote("Enter your email to start your free week."); return; }
+    setNote("");
     setLoading(true);
     try {
       await fetch("/api/practice/wallet", {
@@ -130,15 +131,20 @@ export default function Practice() {
   );
 
   const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "11px 13px", borderRadius: 10, border: "1px solid var(--line)",
+    width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)",
     fontSize: 15, marginTop: 6, fontFamily: "inherit",
   };
   const opt: React.CSSProperties = {
-    border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px",
+    border: "1px solid var(--line)", borderRadius: 12, padding: "12px 16px",
     display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
   };
 
-  const trialActive = trial?.active;
+  // Trial state: never started or still active -> show the free week hero; expired -> emphasize tokens.
+  const trialExpired = Boolean(trial?.started && !trial?.active);
+  const daysLeftLabel =
+    trial?.started && trial?.active
+      ? `${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left in your free week`
+      : "7 days of unlimited practice — no card needed";
 
   return (
     <Shell>
@@ -146,71 +152,92 @@ export default function Practice() {
       <h1 style={{ fontSize: 32, fontWeight: 800, margin: "10px 0 4px" }}>Practice interview with AI</h1>
       <p style={{ color: "var(--slate)", maxWidth: 620 }}>
         Rehearse real {role} scenarios with an AI coach that gives feedback after every answer,
-        then a readiness score. <b>Your first week is free.</b>
+        then a readiness score.
       </p>
 
       {!started && !result && (
-        <div className="card" style={{ maxWidth: 620, marginTop: 22 }}>
-          <label style={{ fontWeight: 600, fontSize: 14 }}>Your email</label>
-          <input
-            style={inputStyle} type="email" placeholder="you@example.com" value={email}
-            onChange={(e) => setEmail(e.target.value)} onBlur={(e) => refresh(e.target.value)}
-          />
-          <p style={{ fontSize: 13, color: "var(--mut)", marginTop: 6 }}>
-            Starts your free week and holds any token balance.
-          </p>
-
-          {/* FREE TRIAL */}
-          {trialActive && (
-            <div style={{ ...opt, marginTop: 16, borderColor: "#bbf7d0", background: "rgba(12,163,12,.06)" }}>
-              <div>
-                <b>🎁 Free week of practice</b>
-                <div style={{ fontSize: 13, color: "var(--slate)" }}>
-                  {trial?.started ? `${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left — unlimited practice`
-                                  : "7 days of unlimited practice — no card needed"}
+        <>
+          {/* ===== FREE WEEK — always front and center ===== */}
+          {!trialExpired && (
+            <div
+              className="card"
+              style={{
+                maxWidth: 620, marginTop: 22, padding: "22px 22px 24px",
+                border: "2px solid #7ee2a8",
+                background: "linear-gradient(180deg, rgba(12,163,12,.10), rgba(12,163,12,.03))",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 30, lineHeight: 1 }}>🎁</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: "#0a7a0a" }}>
+                    Free trial
+                  </div>
+                  <h2 style={{ fontSize: 23, fontWeight: 800, margin: "2px 0 0" }}>
+                    Your first week is <span style={{ color: "#0a7a0a" }}>free</span>
+                  </h2>
                 </div>
               </div>
-              <button className="btn btn-primary" onClick={startFree} disabled={loading}>
-                {loading ? "Starting…" : "Practice free →"}
+              <p style={{ margin: "10px 0 0", color: "var(--slate)", fontSize: 15 }}>
+                {daysLeftLabel}. Test your interview skills as many times as you like — an AI coach
+                gives feedback after every answer, then a readiness score.
+              </p>
+
+              <label style={{ fontWeight: 600, fontSize: 14, display: "block", marginTop: 16 }}>Your email</label>
+              <input
+                style={inputStyle} type="email" placeholder="you@example.com" value={email}
+                onChange={(e) => setEmail(e.target.value)} onBlur={(e) => refresh(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") startFree(); }}
+              />
+              <button
+                className="btn btn-primary"
+                onClick={startFree}
+                disabled={loading}
+                style={{ marginTop: 12, width: "100%", justifyContent: "center", fontSize: 16, padding: "13px 16px" }}
+              >
+                {loading ? "Starting…" : "Start my free week →"}
               </button>
+              <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--mut)", textAlign: "center" }}>
+                No credit card required. We only use your email to hold your free week.
+              </p>
+              {note && <p style={{ color: "#b45309", marginTop: 10, fontSize: 14, fontWeight: 600 }}>{note}</p>}
             </div>
           )}
 
-          {/* AFTER TRIAL: tokens + pay */}
-          {trial && !trialActive && (
-            <>
-              <p style={{ marginTop: 16, fontWeight: 600, color: "#b45309", fontSize: 14 }}>
-                Your free week has ended — keep practicing:
-              </p>
-              {tokens > 0 && (
-                <div style={{ ...opt, marginTop: 10, borderColor: "#bbf7d0", background: "rgba(12,163,12,.06)" }}>
-                  <div><b>{tokens}</b> practice token{tokens > 1 ? "s" : ""} available</div>
-                  <button className="btn btn-primary" onClick={useToken} disabled={loading}>Use 1 token & start →</button>
-                </div>
-              )}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
-                <div style={opt}>
-                  <div><b>Single session</b><div style={{ fontSize: 13, color: "var(--slate)" }}>One mock interview + feedback</div></div>
-                  <button className="btn btn-ghost" onClick={() => buy("single")} disabled={loading}>$2 →</button>
-                </div>
-                <div style={opt}>
-                  <div><b>5 time tokens</b><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · 5 sessions</div></div>
-                  <button className="btn btn-ghost" onClick={() => buy("pack10")} disabled={loading}>$10 →</button>
-                </div>
-                <div style={{ ...opt, borderColor: "#c9defb", background: "rgba(42,120,214,.05)" }}>
-                  <div><b>10 time tokens</b> <span style={{ fontSize: 12, color: "var(--blue)", fontWeight: 700 }}>best value</span><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · max balance</div></div>
-                  <button className="btn btn-primary" onClick={() => buy("pack20")} disabled={loading}>$20 →</button>
-                </div>
+          {/* ===== Token balance (if any) ===== */}
+          {tokens > 0 && (
+            <div className="card" style={{ maxWidth: 620, marginTop: 14 }}>
+              <div style={{ ...opt, border: "none", padding: 0 }}>
+                <div><b>{tokens}</b> practice token{tokens > 1 ? "s" : ""} available</div>
+                <button className="btn btn-primary" onClick={useToken} disabled={loading}>Use 1 token &amp; start →</button>
               </div>
-            </>
+            </div>
           )}
 
-          {!trial && (
-            <p style={{ marginTop: 14, color: "var(--mut)", fontSize: 13 }}>Enter your email above to begin.</p>
-          )}
-
-          {note && <p style={{ color: "#065f46", marginTop: 12, fontSize: 14, fontWeight: 600 }}>{note}</p>}
-        </div>
+          {/* ===== After the free week — secondary ===== */}
+          <div className="card" style={{ maxWidth: 620, marginTop: 14 }}>
+            <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: 15 }}>
+              {trialExpired ? "Your free week has ended — keep practicing:" : "When your free week ends, keep practicing:"}
+            </p>
+            <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--mut)" }}>
+              Pay as you go, or grab time tokens that never expire.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={opt}>
+                <div><b>Single session</b><div style={{ fontSize: 13, color: "var(--slate)" }}>One mock interview + feedback</div></div>
+                <button className="btn btn-ghost" onClick={() => buy("single")} disabled={loading}>$2 →</button>
+              </div>
+              <div style={opt}>
+                <div><b>5 time tokens</b><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · 5 sessions</div></div>
+                <button className="btn btn-ghost" onClick={() => buy("pack10")} disabled={loading}>$10 →</button>
+              </div>
+              <div style={{ ...opt, borderColor: "#c9defb", background: "rgba(42,120,214,.05)" }}>
+                <div><b>10 time tokens</b> <span style={{ fontSize: 12, color: "var(--blue)", fontWeight: 700 }}>best value</span><div style={{ fontSize: 13, color: "var(--slate)" }}>Never expire · max balance</div></div>
+                <button className="btn btn-primary" onClick={() => buy("pack20")} disabled={loading}>$20 →</button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {started && !result && (
